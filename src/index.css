@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .btn__primary {
+    @apply px-4 border rounded-full font-bold;
+  }
+  .btn--hover {
+    @apply hover:border rounded-full p-1 hover:bg-gray-100
+  }
+  .chatTitle__primary {
+    @apply text-white text-2xl font-bold;
+  }
+}
