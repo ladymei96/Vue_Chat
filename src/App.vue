@@ -1,12 +1,11 @@
 <script setup>
-
+import ChatContent from "@/components/ChatContent.vue";
+import AsideList from "@/components/AsideList.vue";
 </script>
 
 <template>
-  <header>
-    <h1>{{ $t("add.message") }}</h1>
-  </header>
-
-  <main>
-  </main>
+  <div class="flex w-full h-screen">
+    <AsideList class="w-1/5" />
+    <ChatContent class="w-4/5" />
+  </div>
 </template>
