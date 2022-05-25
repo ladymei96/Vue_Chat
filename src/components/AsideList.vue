@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
 import { fetchFriendList } from "@/api/chatService.js";
-import { useChatStore } from "@/stores/chat.js";
+import { chat } from "@/stores";
 
-const chatStore = useChatStore();
+const chatStore = chat();
 const friendList = reactive({ list: [] });
 const activeFriend = ref("");
 
@@ -27,13 +27,13 @@ onMounted(async () => {
     <div
       v-for="friend of friendList.list"
       :key="friend.name"
-      class="p-4 border-t last:border-b border-emerald-400 hover:cursor-pointer"
+      class="p-4 border-t last:border-b border-emerald-300 hover:cursor-pointer"
       :class="setActiveBackground(friend.value)"
       @click="selectFriend(friend.value)"
     >
       <div class="flex">
         <div
-          class="w-11 h-11 border border-emerald-400 rounded-full mr-2"
+          class="w-11 h-11 border border-emerald-300 rounded-full mr-2"
         ></div>
         <div>
           <h3 class="text-xl font-bold">{{ friend.name }}</h3>

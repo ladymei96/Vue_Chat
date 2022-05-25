@@ -3,33 +3,49 @@ import icSearch from "@/assets/ic_search.png";
 import icnNote from "@/assets/ic_note.png";
 import icnSent from "@/assets/ic_sent.png";
 import icnClose from "@/assets/ic_close1.png";
+import MemoBlock from "@/components/MemoBlock.vue";
 
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import { useChatStore } from "@/stores/chat.js";
+import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { chat, memo } from "@/stores";
 import { fetchMessageData } from "@/api/chatService.js";
 
-const chartStore = useChatStore();
+const chartStore = chat();
+const memoStore = memo();
 
 const isSearchDisplay = ref(false);
+const isMemoDisplay = ref(false); // default: false, watch => overwrite
 const searchKey = ref("");
 const messageText = ref("");
 const messageData = reactive({ data: {} });
 
-const showSearchBar = () => (isSearchDisplay.value = !isSearchDisplay.value);
+const showSearchBar = () => {
+  isMemoDisplay.value = false;
+  isSearchDisplay.value = !isSearchDisplay.value;
+};
+const showMemoBlock = () => {
+  isSearchDisplay.value = false;
+  isMemoDisplay.value = !isMemoDisplay.value;
+  memoStore.ChangeOpenStatus({
+    name: chartStore.selectedName,
+    status: isMemoDisplay.value,
+  });
+};
 const resetInput = () => {
   messageText.value = "";
   searchKey.value = "";
 };
+const initMemoDisplayValue = (name) => {
+  isMemoDisplay.value = memoStore.totalMemoData[name].isOpen;
+};
 const getMessageData = async (name) => {
   messageData.data = await fetchMessageData(name);
 };
-watch(
-  () => chartStore.selectedName,
-  (newVal) => {
-    resetInput();
-    getMessageData(newVal);
+const getMemoData = async (name) => {
+  if (!memoStore.totalMemoData[name]?.list) {
+    memoStore.GetMemoData(name);
   }
-);
+};
+
 const showMessageList = computed(() => {
   if (!searchKey.value) return messageData.data?.list;
   const result = messageData.data.list.reduce((accum, currentEle) => {
@@ -52,32 +68,41 @@ const count = computed(() => {
   });
   return result.length;
 });
+
+watch(
+  () => chartStore.selectedName,
+  (newVal) => {
+    resetInput();
+    getMessageData(newVal);
+    getMemoData(newVal);
+    initMemoDisplayValue(newVal);
+  }
+);
+
 onMounted(async () => {
   getMessageData(chartStore.selectedName);
+  getMemoData(chartStore.selectedName);
 });
 </script>
 <template>
   <div class="h-full flex flex-col">
     <header class="px-5 py-3 flex justify-between shadow-md relative z-10">
       <div class="flex items-center space-x-1.5">
-        <div class="w-9 h-9 border border-emerald-400 rounded-full"></div>
+        <div class="w-9 h-9 border border-emerald-300 rounded-full"></div>
         <p class="text-xl font-bold">{{ messageData.data?.name }}</p>
       </div>
       <div class="flex items-center space-x-1.5">
-        <button
-          class="hover:border rounded-full p-1 hover:bg-gray-100"
-          @click="showSearchBar()"
-        >
+        <button class="btn--hover" @click="showSearchBar()">
           <img :src="icSearch" alt="search icon" class="w-8 h-8" />
         </button>
-        <button class="btn--hover">
+        <button class="btn--hover" @click="showMemoBlock()">
           <img :src="icnNote" alt="note icon" class="w-8 h-8" />
         </button>
       </div>
     </header>
     <div
       v-show="isSearchDisplay"
-      class="border-b border-emerald-400 flex items-center"
+      class="border-b border-emerald-300 flex items-center"
     >
       <input
         type="text"
@@ -88,7 +113,7 @@ onMounted(async () => {
       <div class="pr-6 flex space-x-4 ml-auto">
         <span class="text-gray-500">{{ $t("num.items", [count]) }}</span>
         <button @click="searchKey = ''">
-          <img :src="icnClose" alt="sent icon" class="w-6" />
+          <img :src="icnClose" alt="close icon" class="w-6" />
         </button>
       </div>
     </div>
@@ -100,7 +125,7 @@ onMounted(async () => {
         v-html="text"
       ></p>
     </div>
-    <div class="border-t border-emerald-400 flex items-center">
+    <div class="border-t border-emerald-300 flex items-center">
       <input
         type="text"
         class="w-90% text-ellipsis px-4 py-6 focus:outline-none"
@@ -111,5 +136,6 @@ onMounted(async () => {
         <img :src="icnSent" alt="sent icon" class="w-10" />
       </button>
     </div>
+    <MemoBlock v-show="isMemoDisplay" class="absolute right-2 top-36" />
   </div>
 </template>

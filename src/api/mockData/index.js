@@ -39,11 +39,3 @@ export const messageData = {
     },
   },
 };
-
-export const memoList = [
-  {
-    isOpen: false,
-    date: "2022/05/25 11:17",
-    text: "備忘訊息",
-  },
-];

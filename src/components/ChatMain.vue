@@ -1,9 +1,9 @@
 <script setup>
 import imgDefault from "@/assets/img_default.png";
 import ChatContent from "@/components/ChatContent.vue";
-import { useChatStore } from "@/stores/chat.js";
+import { chat } from "@/stores";
 
-const chatStore = useChatStore();
+const chatStore = chat();
 </script>
 <template>
   <div>
