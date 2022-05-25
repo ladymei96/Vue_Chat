@@ -1,45 +1,38 @@
 <script setup>
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
+import { fetchFriendList } from "@/api/chatService.js";
+import { useChatStore } from "@/stores/chat.js";
 
-const emit = defineEmits(["emitSelectUser"]);
+const chatStore = useChatStore();
+const friendList = reactive({ list: [] });
 
-const userList = reactive([
-  {
-    name: "保羅",
-    text: "大家好，我是保羅~",
-  },
-  {
-    name: "傑克",
-    text: "大家好，我是傑克~",
-  },
-  {
-    name: "傑森",
-    text: "大家好，我是傑森~",
-  },
-]);
-const emitSelectUser = (userName) => {
-  emit("emitSelectUser", userName);
+const selectFriend = (val) => {
+  chatStore.selectedName = val;
 };
+
+onMounted(async () => {
+  friendList.list = await fetchFriendList();
+});
 </script>
 
 <template>
-  <div>
+  <div class="relative z-10 shadow-r-sm">
     <header class="p-4">
-      {{ `${$t("friends.list")}(${userList.length})` }}
+      {{ `${$t("friends.list")}(${friendList.list.length})` }}
     </header>
     <div
-      v-for="user of userList"
-      :key="user.name"
+      v-for="friend of friendList.list"
+      :key="friend.name"
       class="p-4 border-t last:border-b border-emerald-400"
-      @click="emitSelectUser(user.name)"
+      @click="selectFriend(friend.value)"
     >
       <div class="flex">
         <div
           class="w-11 h-11 border border-emerald-400 rounded-full mr-2"
         ></div>
         <div>
-          <h3 class="text-xl font-bold">{{ user.name }}</h3>
-          <p class="text-gray-500">{{ user.text }}</p>
+          <h3 class="text-xl font-bold">{{ friend.name }}</h3>
+          <p class="text-gray-500">{{ friend.text }}</p>
         </div>
       </div>
     </div>

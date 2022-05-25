@@ -1,3 +1,30 @@
+<script setup>
+import { onMounted, ref } from "vue";
+import { setI18nLanguage } from "@/i18n";
+
+const LANG_TYPE_TABLE = [
+  {
+    name: "中文",
+    lang: "zh-TW",
+  },
+  {
+    name: "English",
+    lang: "en-US",
+  },
+];
+const activeLang = ref("");
+const changeLang = (lang) => {
+  if (activeLang.value === lang) return;
+  activeLang.value = lang;
+  setI18nLanguage(lang);
+};
+
+onMounted(() => {
+  if (!activeLang.value) {
+    activeLang.value = localStorage.getItem("lang");
+  }
+});
+</script>
 <template>
   <header class="bg-main-color flex">
     <div class="py-5 px-6 flex w-5/6 items-center">
@@ -5,11 +32,14 @@
       <div class="ml-auto">
         <button
           type="button"
-          class="btn__primary bg-white text-main-color mr-2"
+          v-for="btn of LANG_TYPE_TABLE"
+          :key="btn.name"
+          class="btn__primary first:mr-2"
+          :class="{ 'btn__active': activeLang === btn.lang }"
+          @click="changeLang(btn.lang), ($i18n.locale = btn.lang)"
         >
-          中文
+          {{ btn.name }}
         </button>
-        <button type="button" class="btn__primary text-white">English</button>
       </div>
     </div>
     <div class="px-6 flex items-center border-l">

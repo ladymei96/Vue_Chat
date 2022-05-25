@@ -1,14 +1,14 @@
 <script setup>
-import ChatContent from "@/components/ChatContent.vue";
 import imgDefault from "@/assets/img_default.png";
-import { ref } from "@vue/reactivity";
+import ChatContent from "@/components/ChatContent.vue";
+import { useChatStore } from "@/stores/chat.js";
 
-const isEmpty = ref(false);
+const chatStore = useChatStore();
 </script>
 <template>
   <div>
     <div
-      v-if="isEmpty"
+      v-if="chatStore.isEmpty"
       class="flex flex-col items-center justify-center h-full"
     >
       <img :src="imgDefault" alt="chat image" class="w-1/5 mb-4" />

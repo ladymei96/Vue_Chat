@@ -4,29 +4,35 @@ import icnNote from "@/assets/ic_note.png";
 import icnSent from "@/assets/ic_sent.png";
 import icnClose from "@/assets/ic_close1.png";
 
-import { reactive, ref } from "@vue/reactivity";
-const props = defineProps({
-  userName: {
-    type: String,
-    default: "保羅",
-  },
-});
-const isSearchDisplay = ref(true);
-const changeStatus = () => {
-  isSearchDisplay.value = !isSearchDisplay.value;
+import { onMounted, reactive, ref, watch } from "vue";
+import { useChatStore } from "@/stores/chat.js";
+import { fetchMessageData } from "@/api/chatService.js";
+
+const chartStore = useChatStore();
+
+const isSearchDisplay = ref(false);
+const messageData = reactive({ data: {} });
+
+const changeStatus = () => (isSearchDisplay.value = !isSearchDisplay.value);
+const getMessageData = async (name) => {
+  messageData.data = await fetchMessageData(name);
 };
-const messageList = reactive(["保羅", "你好，我是潔西卡", "我喜歡吃的食物有", "各種巧克力口味的甜點"]);
-/** 近來拿到 name 從 pinia 拿好了
- * 打 mock api 取回聊天紀錄
- * 加個 loading...
- */
+watch(
+  () => chartStore.selectedName,
+  (newVal) => {
+    getMessageData(newVal);
+  }
+);
+onMounted(async () => {
+  getMessageData(chartStore.selectedName);
+});
 </script>
 <template>
   <div class="h-full flex flex-col">
     <header class="px-5 py-3 flex justify-between shadow-md relative z-10">
       <div class="flex items-center space-x-1.5">
         <div class="w-9 h-9 border border-emerald-400 rounded-full"></div>
-        <p class="text-xl font-bold">{{ userName }}</p>
+        <p class="text-xl font-bold">{{ messageData.data?.name }}</p>
       </div>
       <div class="flex items-center space-x-1.5">
         <button
@@ -46,7 +52,7 @@ const messageList = reactive(["保羅", "你好，我是潔西卡", "我喜歡�
     >
       <input
         type="text"
-        class="w-5/6 px-6 py-4"
+        class="w-5/6 text-ellipsis px-6 py-4 focus:outline-none"
         :placeholder="$t('input.message')"
       />
       <div class="pr-6 flex space-x-4 ml-auto">
@@ -58,20 +64,20 @@ const messageList = reactive(["保羅", "你好，我是潔西卡", "我喜歡�
     </div>
     <div class="p-6 flex flex-col items-end justify-end space-y-1 flex-1">
       <p
-        v-for="text of messageList"
+        v-for="text of messageData.data.list"
         :key="text"
         class="px-5 py-1 bg-main-color text-white rounded-full"
       >
         {{ text }}
       </p>
     </div>
-    <div class="relative border-t border-emerald-400">
+    <div class="border-t border-emerald-400 flex items-center">
       <input
         type="text"
-        class="w-full px-4 py-6"
+        class="w-90% text-ellipsis px-4 py-6 focus:outline-none"
         :placeholder="$t('input.message')"
       />
-      <button class="absolute right-10 top-4">
+      <button class="ml-auto pr-6">
         <img :src="icnSent" alt="sent icon" class="w-10" />
       </button>
     </div>

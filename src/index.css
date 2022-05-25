@@ -4,7 +4,10 @@
 
 @layer components {
   .btn__primary {
-    @apply px-4 border rounded-full font-bold;
+    @apply px-4 border rounded-full font-bold text-white;
+  }
+  .btn__active {
+    @apply bg-white text-main-color
   }
   .btn--hover {
     @apply hover:border rounded-full p-1 hover:bg-gray-100
