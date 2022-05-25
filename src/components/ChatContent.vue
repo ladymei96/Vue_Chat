@@ -11,15 +11,22 @@ import { fetchMessageData } from "@/api/chatService.js";
 const chartStore = useChatStore();
 
 const isSearchDisplay = ref(false);
+const highlightText = ref("");
+const messageText = ref("");
 const messageData = reactive({ data: {} });
 
 const changeStatus = () => (isSearchDisplay.value = !isSearchDisplay.value);
+const resetInput = () => {
+  messageText.value = "";
+  highlightText.value = "";
+};
 const getMessageData = async (name) => {
   messageData.data = await fetchMessageData(name);
 };
 watch(
   () => chartStore.selectedName,
   (newVal) => {
+    resetInput();
     getMessageData(newVal);
   }
 );
@@ -54,10 +61,11 @@ onMounted(async () => {
         type="text"
         class="w-5/6 text-ellipsis px-6 py-4 focus:outline-none"
         :placeholder="$t('input.message')"
+        v-model="highlightText"
       />
       <div class="pr-6 flex space-x-4 ml-auto">
         <span class="text-gray-500">{{ $t("num.items", [1]) }}</span>
-        <button>
+        <button @click="highlightText = ''">
           <img :src="icnClose" alt="sent icon" class="w-6" />
         </button>
       </div>
@@ -76,6 +84,7 @@ onMounted(async () => {
         type="text"
         class="w-90% text-ellipsis px-4 py-6 focus:outline-none"
         :placeholder="$t('input.message')"
+        v-model="messageText"
       />
       <button class="ml-auto pr-6">
         <img :src="icnSent" alt="sent icon" class="w-10" />

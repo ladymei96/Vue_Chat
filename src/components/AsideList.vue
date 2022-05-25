@@ -1,15 +1,19 @@
 <script setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { fetchFriendList } from "@/api/chatService.js";
 import { useChatStore } from "@/stores/chat.js";
 
 const chatStore = useChatStore();
 const friendList = reactive({ list: [] });
+const activeFriend = ref("");
 
 const selectFriend = (val) => {
+  activeFriend.value = val;
   chatStore.selectedName = val;
 };
-
+const setActiveBackground = (val) => {
+  return activeFriend.value === val ? "bg-neutral-100" : "";
+};
 onMounted(async () => {
   friendList.list = await fetchFriendList();
 });
@@ -23,7 +27,8 @@ onMounted(async () => {
     <div
       v-for="friend of friendList.list"
       :key="friend.name"
-      class="p-4 border-t last:border-b border-emerald-400"
+      class="p-4 border-t last:border-b border-emerald-400 hover:cursor-pointer"
+      :class="setActiveBackground(friend.value)"
       @click="selectFriend(friend.value)"
     >
       <div class="flex">
