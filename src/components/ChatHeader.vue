@@ -35,7 +35,7 @@ onMounted(() => {
           v-for="btn of LANG_TYPE_TABLE"
           :key="btn.name"
           class="btn__primary first:mr-2"
-          :class="{ 'btn__active': activeLang === btn.lang }"
+          :class="{ 'btn--active': activeLang === btn.lang }"
           @click="changeLang(btn.lang), ($i18n.locale = btn.lang)"
         >
           {{ btn.name }}

@@ -24,6 +24,6 @@ const emit = defineEmits(["emitRemoveEvent"]);
         <img :src="icnClose" alt="close icon" class="w-2" />
       </button>
     </div>
-    <p>{{ memoData.text }}</p>
+    <p class="break-all whitespace-normal">{{ memoData.text }}</p>
   </div>
 </template>

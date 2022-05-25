@@ -1,7 +1,7 @@
 <script setup>
 import MemoItem from "@/components/MemoItem.vue";
 import { chat, memo } from "@/stores";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { getCurrentDate } from "@/utils/date.js";
 
 const chatStore = chat();
@@ -34,6 +34,12 @@ const memoList = computed(() => {
   const list = memoStore.totalMemoData[chatStore.selectedName]?.list;
   return list ? list : [];
 });
+watch(
+  () => chatStore.selectedName,
+  () => {
+    resetMemoText();
+  }
+);
 </script>
 <template>
   <div
@@ -44,7 +50,7 @@ const memoList = computed(() => {
       id="momo"
       cols="33"
       rows="5"
-      class="w-full border border-main-color"
+      class="w-full border border-main-color p-2"
       :placeholder="$t('input.message')"
       v-model.trim="memoText"
     >

@@ -13,9 +13,10 @@ const chartStore = chat();
 const memoStore = memo();
 
 const isSearchDisplay = ref(false);
-const isMemoDisplay = ref(false); // default: false, watch => overwrite
+const isMemoDisplay = ref(false);
 const searchKey = ref("");
 const messageText = ref("");
+const activeBtn = ref("");
 const messageData = reactive({ data: {} });
 
 const showSearchBar = () => {
@@ -33,6 +34,9 @@ const showMemoBlock = () => {
 const resetInput = () => {
   messageText.value = "";
   searchKey.value = "";
+};
+const resetSearchBtn = () => {
+  isSearchDisplay.value = false;
 };
 const initMemoDisplayValue = (name) => {
   isMemoDisplay.value = memoStore.totalMemoData[name].isOpen;
@@ -73,11 +77,19 @@ watch(
   () => chartStore.selectedName,
   (newVal) => {
     resetInput();
+    resetSearchBtn();
     getMessageData(newVal);
     getMemoData(newVal);
     initMemoDisplayValue(newVal);
   }
 );
+watchEffect(() => {
+  activeBtn.value = isSearchDisplay.value
+    ? "searchBtn"
+    : isMemoDisplay.value
+    ? "mempBtn"
+    : "";
+});
 
 onMounted(async () => {
   getMessageData(chartStore.selectedName);
@@ -92,10 +104,18 @@ onMounted(async () => {
         <p class="text-xl font-bold">{{ messageData.data?.name }}</p>
       </div>
       <div class="flex items-center space-x-1.5">
-        <button class="btn--hover" @click="showSearchBar()">
+        <button
+          class="btn__basic btn__basic--hover"
+          :class="{ 'btn__basic--active': activeBtn === 'searchBtn' }"
+          @click="showSearchBar()"
+        >
           <img :src="icSearch" alt="search icon" class="w-8 h-8" />
         </button>
-        <button class="btn--hover" @click="showMemoBlock()">
+        <button
+          class="btn__basic btn__basic--hover"
+          :class="{ 'btn__basic--active': activeBtn === 'mempBtn' }"
+          @click="showMemoBlock()"
+        >
           <img :src="icnNote" alt="note icon" class="w-8 h-8" />
         </button>
       </div>
