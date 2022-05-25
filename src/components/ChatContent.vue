@@ -112,11 +112,15 @@ onMounted(async () => {
           <img :src="icSearch" alt="search icon" class="w-8 h-8" />
         </button>
         <button
-          class="btn__basic btn__basic--hover"
+          class="btn__basic btn__basic--hover relative"
           :class="{ 'btn__basic--active': activeBtn === 'mempBtn' }"
           @click="showMemoBlock()"
         >
           <img :src="icnNote" alt="note icon" class="w-8 h-8" />
+          <span
+            v-show="isMemoDisplay"
+            class="memoBlock__triangle absolute block hover:cursor-default"
+          ></span>
         </button>
       </div>
     </header>
@@ -156,6 +160,27 @@ onMounted(async () => {
         <img :src="icnSent" alt="sent icon" class="w-10" />
       </button>
     </div>
-    <MemoBlock v-show="isMemoDisplay" class="absolute right-2 top-36" />
+    <MemoBlock v-show="isMemoDisplay" class="absolute right-2 top-36 bg-gra" />
   </div>
 </template>
+<style>
+.memoBlock__triangle {
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 0 18px 18px 18px;
+  border-color: transparent transparent #eee transparent;
+}
+.memoBlock__triangle::after {
+  content: "";
+  border-style: solid;
+  border-width: 0 17px 18px 17px;
+  border-color: transparent transparent #fff;
+  position: absolute;
+  top: 1px;
+  left: -17px;
+}
+</style>
