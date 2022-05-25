@@ -4,21 +4,21 @@ import icnNote from "@/assets/ic_note.png";
 import icnSent from "@/assets/ic_sent.png";
 import icnClose from "@/assets/ic_close1.png";
 
-import { onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useChatStore } from "@/stores/chat.js";
 import { fetchMessageData } from "@/api/chatService.js";
 
 const chartStore = useChatStore();
 
 const isSearchDisplay = ref(false);
-const highlightText = ref("");
+const searchKey = ref("");
 const messageText = ref("");
 const messageData = reactive({ data: {} });
 
-const changeStatus = () => (isSearchDisplay.value = !isSearchDisplay.value);
+const showSearchBar = () => (isSearchDisplay.value = !isSearchDisplay.value);
 const resetInput = () => {
   messageText.value = "";
-  highlightText.value = "";
+  searchKey.value = "";
 };
 const getMessageData = async (name) => {
   messageData.data = await fetchMessageData(name);
@@ -30,6 +30,28 @@ watch(
     getMessageData(newVal);
   }
 );
+const showMessageList = computed(() => {
+  if (!searchKey.value) return messageData.data?.list;
+  const result = messageData.data.list.reduce((accum, currentEle) => {
+    let newEle = currentEle;
+    if (currentEle.includes(searchKey.value)) {
+      newEle = currentEle.replace(
+        searchKey.value,
+        `<span class="bg-yellow-300 text-black">${searchKey.value}</span>`
+      );
+    }
+    accum.push(newEle);
+    return accum;
+  }, []);
+  return result;
+});
+const count = computed(() => {
+  if (!messageData.data?.list) return 0;
+  const result = showMessageList.value.filter((ele) => {
+    return ele.includes("</span>");
+  });
+  return result.length;
+});
 onMounted(async () => {
   getMessageData(chartStore.selectedName);
 });
@@ -44,7 +66,7 @@ onMounted(async () => {
       <div class="flex items-center space-x-1.5">
         <button
           class="hover:border rounded-full p-1 hover:bg-gray-100"
-          @click="changeStatus()"
+          @click="showSearchBar()"
         >
           <img :src="icSearch" alt="search icon" class="w-8 h-8" />
         </button>
@@ -61,23 +83,22 @@ onMounted(async () => {
         type="text"
         class="w-5/6 text-ellipsis px-6 py-4 focus:outline-none"
         :placeholder="$t('input.message')"
-        v-model="highlightText"
+        v-model.trim="searchKey"
       />
       <div class="pr-6 flex space-x-4 ml-auto">
-        <span class="text-gray-500">{{ $t("num.items", [1]) }}</span>
-        <button @click="highlightText = ''">
+        <span class="text-gray-500">{{ $t("num.items", [count]) }}</span>
+        <button @click="searchKey = ''">
           <img :src="icnClose" alt="sent icon" class="w-6" />
         </button>
       </div>
     </div>
     <div class="p-6 flex flex-col items-end justify-end space-y-1 flex-1">
       <p
-        v-for="text of messageData.data.list"
+        v-for="text of showMessageList"
         :key="text"
         class="px-5 py-1 bg-main-color text-white rounded-full"
-      >
-        {{ text }}
-      </p>
+        v-html="text"
+      ></p>
     </div>
     <div class="border-t border-emerald-400 flex items-center">
       <input
