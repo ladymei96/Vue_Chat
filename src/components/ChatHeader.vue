@@ -21,7 +21,9 @@ const changeLang = (lang) => {
 
 onMounted(() => {
   if (!activeLang.value) {
-    activeLang.value = localStorage.getItem("lang");
+    activeLang.value = localStorage.getItem("lang")
+      ? localStorage.getItem("lang")
+      : "zh-TW";
   }
 });
 </script>
